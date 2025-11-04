@@ -11,18 +11,77 @@ interface UserSettingsProps {
   onBack: () => void;
 }
 
+// NUEVO: Definimos los datos originales fuera o los podríamos
+// cargar con un useEffect en un caso real.
+// Usaremos esto para comparar si algo realmente cambió.
+const originalData = {
+  name: 'Juan Pérez',
+  email: 'juan.perez@email.com',
+};
+
 export function UserSettings({ onBack }: UserSettingsProps) {
   const [userData, setUserData] = useState({
-    name: 'Juan Pérez',
-    email: 'juan.perez@email.com',
+    name: originalData.name,
+    email: originalData.email,
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
+  // MODIFICADO: Lógica de guardado actualizada
   const handleSave = () => {
-    console.log('Guardar cambios:', userData);
+    const nameChanged = userData.name !== originalData.name;
+    const emailChanged = userData.email !== originalData.email;
+    const passwordChanged = userData.newPassword !== '';
+
+    const requiresAuth = nameChanged || emailChanged || passwordChanged;
+
+    // Si no se hizo ningún cambio, no hacemos nada.
+    if (!requiresAuth) {
+      alert('No se han realizado cambios.');
+      return;
+    }
+
+    // Si se realizó cualquier cambio, la contraseña actual es obligatoria.
+    if (userData.currentPassword === '') {
+      alert('Por favor, ingresa tu contraseña actual para guardar los cambios.');
+      return;
+    }
+
+    // --- Simulación de verificación de contraseña ---
+    // En una aplicación real, esto se verificaría contra el backend.
+    if (userData.currentPassword !== 'password123') { // Simula la contraseña correcta
+      alert('La contraseña actual es incorrecta.');
+      return;
+    }
+    // --- Fin de la simulación ---
+
+    // Si el usuario intentó cambiar la contraseña, verificamos que coincidan
+    if (passwordChanged) {
+      if (userData.newPassword !== userData.confirmPassword) {
+        alert('Las nuevas contraseñas no coinciden.');
+        return;
+      }
+    }
+
+    // Si todas las validaciones pasan:
+    console.log('Guardar cambios:', {
+      name: userData.name,
+      email: userData.email,
+      newPassword: userData.newPassword, // No enviarías la currentPassword
+    });
     alert('Cambios guardados correctamente');
+
+    // Opcional: Limpiar campos de contraseña después de guardar
+    setUserData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    }));
+    
+    // En un caso real, aquí deberías actualizar 'originalData'
+    // o volver a cargar los datos del usuario.
   };
 
   return (
@@ -36,7 +95,7 @@ export function UserSettings({ onBack }: UserSettingsProps) {
           </CardHeader>
           
           <CardContent className="p-8 space-y-8">
-            {/* Profile Photo */}
+            {/* Profile Photo (Sin cambios) */}
             <div>
               <Label className="mb-4 block">Foto de Perfil</Label>
               <div className="flex items-center gap-6">
@@ -53,7 +112,7 @@ export function UserSettings({ onBack }: UserSettingsProps) {
               </div>
             </div>
             
-            {/* Personal Information */}
+            {/* Personal Information (Sin cambios en JSX) */}
             <div className="space-y-4">
               <h3>Información Personal</h3>
               
@@ -79,20 +138,10 @@ export function UserSettings({ onBack }: UserSettingsProps) {
               </div>
             </div>
             
-            {/* Password Change */}
+            {/* MODIFICADO: Sección de Cambio de Contraseña */}
+            {/* Se elimina el campo "Contraseña Actual" de esta sección */}
             <div className="space-y-4 pt-6 border-t">
               <h3>Cambiar Contraseña</h3>
-              
-              <div>
-                <Label htmlFor="currentPassword">Contraseña Actual</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={userData.currentPassword}
-                  onChange={(e) => setUserData({...userData, currentPassword: e.target.value})}
-                  className="mt-1"
-                />
-              </div>
               
               <div>
                 <Label htmlFor="newPassword">Nueva Contraseña</Label>
@@ -102,6 +151,7 @@ export function UserSettings({ onBack }: UserSettingsProps) {
                   value={userData.newPassword}
                   onChange={(e) => setUserData({...userData, newPassword: e.target.value})}
                   className="mt-1"
+                  placeholder="Dejar en blanco para no cambiar"
                 />
               </div>
               
@@ -116,8 +166,25 @@ export function UserSettings({ onBack }: UserSettingsProps) {
                 />
               </div>
             </div>
+
+            <div className="space-y-4 pt-6 border-t">
+              <h3>Confirmar Cambios</h3>
+              <p className="text-sm text-muted-foreground">
+                Por seguridad, ingresa tu contraseña actual para guardar cualquier cambio.
+              </p>
+              <div>
+                <Label htmlFor="currentPassword">Contraseña Actual (Requerida)</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={userData.currentPassword}
+                  onChange={(e) => setUserData({...userData, currentPassword: e.target.value})}
+                  className="mt-1"
+                />
+              </div>
+            </div>
             
-            {/* Save Button */}
+            {/* Save Button (Sin cambios en JSX) */}
             <div className="pt-6">
               <Button onClick={handleSave} size="lg" className="w-full sm:w-auto">
                 Guardar Cambios
