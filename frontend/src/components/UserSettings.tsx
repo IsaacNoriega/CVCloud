@@ -6,6 +6,8 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User, Upload } from 'lucide-react';
+import userService from '../services/userService';
+import { toast } from 'sonner';
 
 interface UserProfile {
   id: string;
@@ -16,9 +18,10 @@ interface UserProfile {
 interface UserSettingsProps {
   onBack: () => void;
   user: UserProfile;
+  onUserUpdate: (updatedUser: UserProfile) => void;
 }
 
-export function UserSettings({ onBack, user }: UserSettingsProps) {
+export function UserSettings({ onBack, user, onUserUpdate }: UserSettingsProps) {
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
@@ -28,59 +31,62 @@ export function UserSettings({ onBack, user }: UserSettingsProps) {
   });
 
   // MODIFICADO: Lógica de guardado actualizada
-  const handleSave = () => {
-    const nameChanged = userData.name !== originalData.name;
-    const emailChanged = userData.email !== originalData.email;
+  const handleSave = async () => {
+    const nameChanged = userData.name !== user.name;
+    const emailChanged = userData.email !== user.email;
     const passwordChanged = userData.newPassword !== '';
 
     const requiresAuth = nameChanged || emailChanged || passwordChanged;
 
     // Si no se hizo ningún cambio, no hacemos nada.
     if (!requiresAuth) {
-      alert('No se han realizado cambios.');
+      toast.info('No se han realizado cambios.');
       return;
     }
 
     // Si se realizó cualquier cambio, la contraseña actual es obligatoria.
     if (userData.currentPassword === '') {
-      alert('Por favor, ingresa tu contraseña actual para guardar los cambios.');
+      toast.error('Por favor, ingresa tu contraseña actual para guardar los cambios.');
       return;
     }
-
-    // --- Simulación de verificación de contraseña ---
-    // En una aplicación real, esto se verificaría contra el backend.
-    if (userData.currentPassword !== 'password123') { // Simula la contraseña correcta
-      alert('La contraseña actual es incorrecta.');
-      return;
-    }
-    // --- Fin de la simulación ---
 
     // Si el usuario intentó cambiar la contraseña, verificamos que coincidan
     if (passwordChanged) {
       if (userData.newPassword !== userData.confirmPassword) {
-        alert('Las nuevas contraseñas no coinciden.');
+        toast.error('Las nuevas contraseñas no coinciden.');
+        return;
+      }
+      if (userData.newPassword.length < 6) {
+        toast.error('La nueva contraseña debe tener al menos 6 caracteres.');
         return;
       }
     }
 
-    // Si todas las validaciones pasan:
-    console.log('Guardar cambios:', {
-      name: userData.name,
-      email: userData.email,
-      newPassword: userData.newPassword, // No enviarías la currentPassword
-    });
-    alert('Cambios guardados correctamente');
+    try {
+      const updateData: any = {};
+      if (nameChanged) updateData.name = userData.name;
+      if (emailChanged) updateData.email = userData.email;
+      if (passwordChanged) {
+        updateData.currentPassword = userData.currentPassword;
+        updateData.newPassword = userData.newPassword;
+      }
 
-    // Opcional: Limpiar campos de contraseña después de guardar
-    setUserData(prev => ({
+      const updatedUser = await userService.updateUser(user.id, updateData);
+      onUserUpdate(updatedUser);
+
+      toast.success('Cambios guardados correctamente');
+
+      // Limpiar campos de contraseña después de guardar
+      setUserData(prev => ({
         ...prev,
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
-    }));
-    
-    // En un caso real, aquí deberías actualizar 'originalData'
-    // o volver a cargar los datos del usuario.
+      }));
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      toast.error(error.message || 'Error al guardar los cambios');
+    }
   };
 
   return (

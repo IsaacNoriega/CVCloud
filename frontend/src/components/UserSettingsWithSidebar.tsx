@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader } from './ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { User, Upload, Mail, Lock, UserCircle, CheckCircle } from 'lucide-react';
+import userService from '../services/userService';
+import { toast } from 'sonner';
 
 interface UserProfile {
   id: string;
@@ -15,9 +17,10 @@ interface UserProfile {
 
 interface UserSettingsWithSidebarProps {
   user: UserProfile;
+  onUserUpdate: (updatedUser: UserProfile) => void;
 }
 
-export function UserSettingsWithSidebar({ user }: UserSettingsWithSidebarProps) {
+export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWithSidebarProps) {
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
@@ -45,47 +48,70 @@ export function UserSettingsWithSidebar({ user }: UserSettingsWithSidebarProps) 
     setShowNameModal(true);
   };
 
-  const handleSaveEmail = () => {
+  const handleSaveEmail = async () => {
     if (tempEmail && tempEmail.includes('@')) {
-      setUserData({ ...userData, email: tempEmail });
-      setShowEmailModal(false);
-      setTempEmail('');
-      alert('Correo actualizado correctamente');
+      try {
+        const updatedUser = await userService.updateUser(user.id, { email: tempEmail });
+        setUserData({ ...userData, email: tempEmail });
+        onUserUpdate(updatedUser);
+        setShowEmailModal(false);
+        setTempEmail('');
+        toast.success('Correo actualizado correctamente');
+      } catch (error: any) {
+        console.error('Error updating email:', error);
+        toast.error(error.message || 'Error al actualizar el correo');
+      }
     } else {
-      alert('Por favor ingresa un correo válido');
+      toast.error('Por favor ingresa un correo válido');
     }
   };
 
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     if (tempName.trim()) {
-      setUserData({ ...userData, name: tempName });
-      setShowNameModal(false);
-      setTempName('');
-      alert('Nombre actualizado correctamente');
+      try {
+        const updatedUser = await userService.updateUser(user.id, { name: tempName });
+        setUserData({ ...userData, name: tempName });
+        onUserUpdate(updatedUser);
+        setShowNameModal(false);
+        setTempName('');
+        toast.success('Nombre actualizado correctamente');
+      } catch (error: any) {
+        console.error('Error updating name:', error);
+        toast.error(error.message || 'Error al actualizar el nombre');
+      }
     } else {
-      alert('Por favor ingresa un nombre válido');
+      toast.error('Por favor ingresa un nombre válido');
     }
   };
 
-  const handleSavePassword = () => {
+  const handleSavePassword = async () => {
     if (!currentPassword) {
-      alert('Por favor ingresa tu contraseña actual');
+      toast.error('Por favor ingresa tu contraseña actual');
       return;
     }
     if (newPassword.length < 6) {
-      alert('La nueva contraseña debe tener al menos 6 caracteres');
+      toast.error('La nueva contraseña debe tener al menos 6 caracteres');
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      toast.error('Las contraseñas no coinciden');
       return;
     }
     
-    setShowPasswordModal(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    alert('Contraseña actualizada correctamente');
+    try {
+      await userService.updateUser(user.id, {
+        currentPassword,
+        newPassword
+      });
+      setShowPasswordModal(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast.success('Contraseña actualizada correctamente');
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      toast.error(error.message || 'Error al actualizar la contraseña');
+    }
   };
 
   return (

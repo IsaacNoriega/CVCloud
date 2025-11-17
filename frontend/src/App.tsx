@@ -216,6 +216,22 @@ export default function App() {
     setUser(null);
   };
 
+  const handleUserUpdate = (updatedUser: { id: string; name: string; email: string }) => {
+    // Actualizar el estado del usuario
+    setUser({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      fallback: updatedUser.name.charAt(0).toUpperCase(),
+    });
+    
+    // Actualizar también en localStorage
+    const currentUser = authService.getUser();
+    if (currentUser) {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   // NUEVO: Wrapper para el prop onNavigate del sidebar
   const onSidebarNavigate = (view: AppView) => {
     if (view === 'auth') {
@@ -267,7 +283,7 @@ export default function App() {
           />
         );
       case 'profile':
-        return user ? <UserSettingsWithSidebar user={user} /> : null;
+        return user ? <UserSettingsWithSidebar user={user} onUserUpdate={handleUserUpdate} /> : null;
       default:
         return null; // El editor se maneja arriba
     }
