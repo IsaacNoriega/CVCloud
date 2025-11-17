@@ -3,9 +3,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader } from './ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import { User, Upload, Mail, Lock, UserCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, UserCircle, CheckCircle } from 'lucide-react';
 import userService from '../services/userService';
 import { toast } from 'sonner';
 
@@ -124,33 +123,6 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
               Gestiona tu información personal y seguridad de cuenta
             </p>
           </div>
-
-          {/* Profile Photo Card */}
-          <Card className="shadow-sm mb-6">
-            <CardHeader className="border-b">
-              <h2>Foto de Perfil</h2>
-            </CardHeader>
-            
-            <CardContent className="p-6">
-              <div className="flex items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" />
-                  <AvatarFallback className="bg-primary/10">
-                    <User className="h-12 w-12 text-primary" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="space-y-2">
-                  <Button variant="outline" className="gap-2">
-                    <Upload className="h-4 w-4" />
-                    Cambiar foto
-                  </Button>
-                  <p className="text-sm text-muted-foreground">
-                    JPG, PNG o GIF. Máximo 2MB.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Personal Information Card */}
           <Card className="shadow-sm mb-6">
