@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppSidebar } from './components/AppSidebar'; // Asume el sidebar colapsable mejorado
 import { HomeView } from './components/HomeView';
 import { DashboardWithSidebar } from './components/DashboardWithSidebar';
 import { CVEditorNew } from './components/CVEditorNew';
 import { UserSettingsWithSidebar } from './components/UserSettingsWithSidebar';
 import { AuthViewUnified } from './components/AuthViewUnified';
+import { Toaster } from './components/ui/sonner';
+import authService from './services/authService';
 
 // NUEVO: Imports para el layout responsivo
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet';
@@ -47,6 +49,21 @@ export default function App() {
 
   // MODIFICADO: Vista inicial (si está autenticado)
   const [currentView, setCurrentView] = useState<View>('my-cvs');
+
+  // Verificar si el usuario ya está autenticado al cargar
+  useEffect(() => {
+    const token = authService.getToken();
+    const savedUser = authService.getUser();
+    
+    if (token && savedUser) {
+      setIsAuthenticated(true);
+      setUser({
+        name: savedUser.name,
+        email: savedUser.email,
+        fallback: savedUser.name.charAt(0).toUpperCase(),
+      });
+    }
+  }, []);
   
   const [cvs, setCvs] = useState<CV[]>([
     { id: '1', title: 'CV Desarrollador Senior', templateId: 'executive' },
@@ -107,15 +124,22 @@ export default function App() {
   };
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
-    setUser(dummyUser); // Cargar datos del usuario
-    setCurrentView('my-cvs'); // Dirigir al dashboard
+    const savedUser = authService.getUser();
+    if (savedUser) {
+      setIsAuthenticated(true);
+      setUser({
+        name: savedUser.name,
+        email: savedUser.email,
+        fallback: savedUser.name.charAt(0).toUpperCase(),
+      });
+      setCurrentView('my-cvs');
+    }
   };
 
   const handleLogout = () => {
+    authService.logout();
     setIsAuthenticated(false);
-    setUser(null); // Limpiar usuario
-    // No es necesario cambiar la vista, el guardián de auth se encargará
+    setUser(null);
   };
 
   // NUEVO: Wrapper para el prop onNavigate del sidebar
@@ -214,6 +238,9 @@ export default function App() {
           {renderAppView()}
         </div>
       </main>
+      
+      {/* Toaster para notificaciones */}
+      <Toaster position="top-right" />
     </div>
   );
 }

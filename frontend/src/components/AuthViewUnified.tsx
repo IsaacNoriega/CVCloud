@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react';
+import authService from '../services/authService';
+import { toast } from 'sonner';
 
 interface AuthViewUnifiedProps {
   onSuccess?: () => void;
@@ -13,6 +15,7 @@ export function AuthViewUnified({ onSuccess }: AuthViewUnifiedProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const [loginData, setLoginData] = useState({
     email: '',
@@ -26,28 +29,64 @@ export function AuthViewUnified({ onSuccess }: AuthViewUnifiedProps) {
     confirmPassword: ''
   });
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof onSuccess === 'function') {
-      onSuccess();
-      return;
-    }
+    setIsLoading(true);
 
+    try {
+      const response = await authService.login({
+        email: loginData.email,
+        password: loginData.password,
+      });
+
+      toast.success(`¡Bienvenido ${response.user.name}!`);
+      
+      if (typeof onSuccess === 'function') {
+        onSuccess();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      toast.error(errorMessage);
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (registerData.password !== registerData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
-   
-
-    if (typeof onSuccess === 'function') {
-      onSuccess();
+      toast.error('Las contraseñas no coinciden');
       return;
     }
 
+    if (registerData.password.length < 8) {
+      toast.error('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await authService.register({
+        name: registerData.name,
+        email: registerData.email,
+        password: registerData.password,
+      });
+
+      toast.success(`¡Cuenta creada! Bienvenido ${response.user.name}`);
+      
+      if (typeof onSuccess === 'function') {
+        onSuccess();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear la cuenta';
+      toast.error(errorMessage);
+      console.error('Register error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -185,8 +224,15 @@ export function AuthViewUnified({ onSuccess }: AuthViewUnifiedProps) {
                           </div>
                         </div>
 
-                        <Button type="submit" className="w-full">
-                          Iniciar Sesión
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Iniciando sesión...
+                            </>
+                          ) : (
+                            'Iniciar Sesión'
+                          )}
                         </Button>
                       </motion.form>
 
@@ -441,8 +487,15 @@ export function AuthViewUnified({ onSuccess }: AuthViewUnifiedProps) {
 
                        
 
-                        <Button type="submit" className="w-full">
-                          Crear Cuenta
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Creando cuenta...
+                            </>
+                          ) : (
+                            'Crear Cuenta'
+                          )}
                         </Button>
                       </motion.form>
 
