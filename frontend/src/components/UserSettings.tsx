@@ -7,22 +7,21 @@ import { Card, CardContent, CardHeader } from './ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User, Upload } from 'lucide-react';
 
-interface UserSettingsProps {
-  onBack: () => void;
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
 }
 
-// NUEVO: Definimos los datos originales fuera o los podríamos
-// cargar con un useEffect en un caso real.
-// Usaremos esto para comparar si algo realmente cambió.
-const originalData = {
-  name: 'Juan Pérez',
-  email: 'juan.perez@email.com',
-};
+interface UserSettingsProps {
+  onBack: () => void;
+  user: UserProfile;
+}
 
-export function UserSettings({ onBack }: UserSettingsProps) {
+export function UserSettings({ onBack, user }: UserSettingsProps) {
   const [userData, setUserData] = useState({
-    name: originalData.name,
-    email: originalData.email,
+    name: user.name,
+    email: user.email,
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''

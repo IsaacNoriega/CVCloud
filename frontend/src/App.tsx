@@ -6,7 +6,9 @@ import { CVEditorNew } from './components/CVEditorNew';
 import { UserSettingsWithSidebar } from './components/UserSettingsWithSidebar';
 import { AuthViewUnified } from './components/AuthViewUnified';
 import { Toaster } from './components/ui/sonner';
+import { toast } from 'sonner';
 import authService from './services/authService';
+import cvService, { type CVData } from './services/cvService';
 
 // NUEVO: Imports para el layout responsivo
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet';
@@ -20,6 +22,7 @@ type AppView = NavView | 'auth'; // Tipo que nos da el sidebar
 
 // NUEVO: Tipo para el perfil de usuario
 interface UserProfile {
+  id: string;
   name: string;
   email: string;
   image?: string;
@@ -31,15 +34,8 @@ interface CV {
   title: string;
   thumbnail?: string;
   templateId: string;
+  data?: CVData;
 }
-
-// NUEVO: Datos de usuario de ejemplo (para el sidebar)
-const dummyUser: UserProfile = {
-  name: "María García",
-  email: "maria.garcia@ejemplo.com",
-  image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-  fallback: "MG",
-};
 
 export default function App() {
   // NUEVO: Estado de autenticación
@@ -58,29 +54,42 @@ export default function App() {
     if (token && savedUser) {
       setIsAuthenticated(true);
       setUser({
+        id: savedUser.id,
         name: savedUser.name,
         email: savedUser.email,
         fallback: savedUser.name.charAt(0).toUpperCase(),
       });
+      
+      // Cargar los CVs del usuario
+      loadUserCVs(savedUser.id);
     }
   }, []);
-  
-  const [cvs, setCvs] = useState<CV[]>([
-    { id: '1', title: 'CV Desarrollador Senior', templateId: 'executive' },
-    { id: '2', title: 'CV Diseñador UX', templateId: 'minimal-premium' },
-    { id: '3', title: 'CV Marketing Digital', templateId: 'sidebar-dark' },
-  ]);
-  const [currentCVId, setCurrentCVId] = useState<string | null>(null);
 
-  // --- Handlers de CVs (Sin cambios) ---
+  const loadUserCVs = async (userId: string) => {
+    try {
+      const userCVs = await cvService.getUserCVs(userId);
+      const formattedCVs = userCVs.map(cv => ({
+        id: cv.id,
+        title: cv.data.title || 'CV sin título',
+        templateId: cv.data.templateId || 'executive',
+        data: cv.data,
+      }));
+      setCvs(formattedCVs);
+    } catch (error) {
+      console.error('Error loading CVs:', error);
+      toast.error('Error al cargar los CVs');
+    }
+  };
+  
+  const [cvs, setCvs] = useState<CV[]>([]);
+  const [currentCVId, setCurrentCVId] = useState<string | null>(null);
+  const [currentTemplateId, setCurrentTemplateId] = useState<string>('executive');
+
+  // --- Handlers de CVs ---
   const handleSelectTemplate = (templateId: string) => {
-    const newCV: CV = {
-      id: Date.now().toString(),
-      title: 'Currículum sin título',
-      templateId: templateId,
-    };
-    setCvs([...cvs, newCV]);
-    setCurrentCVId(newCV.id);
+    // Solo guardamos el templateId, NO agregamos el CV aún
+    setCurrentTemplateId(templateId);
+    setCurrentCVId(null); // Nuevo CV sin ID aún
     setCurrentView('editor');
   };
 
@@ -94,19 +103,81 @@ export default function App() {
     alert(`Descargando: ${cv?.title}`);
   };
 
-  const handleDeleteCV = (id: string) => {
+  const handleDeleteCV = async (id: string) => {
     if (confirm('¿Estás seguro de eliminar este currículum?')) {
-      setCvs(cvs.filter(c => c.id !== id));
+      try {
+        await cvService.deleteCV(id);
+        setCvs(cvs.filter(c => c.id !== id));
+        toast.success('CV eliminado correctamente');
+      } catch (error) {
+        console.error('Error deleting CV:', error);
+        toast.error('Error al eliminar el CV');
+      }
     }
   };
 
-  const handleSaveCV = (newTitle: string) => {
-    if (currentCVId) {
-      setCvs(cvs.map(cv => 
-        cv.id === currentCVId ? { ...cv, title: newTitle } : cv
-      ));
+  const handleSaveCV = async (newTitle: string, cvData?: CVData['formData']) => {
+    if (!user) {
+      toast.error('Usuario no autenticado');
+      return;
     }
-    alert('Currículum guardado correctamente');
+
+    try {
+      const dataToSave = {
+        title: newTitle,
+        templateId: currentCVId ? (cvs.find(c => c.id === currentCVId)?.templateId || currentTemplateId) : currentTemplateId,
+        formData: cvData || {
+          name: '',
+          email: '',
+          phone: '',
+          location: '',
+          summary: '',
+          experiences: [],
+          education: [],
+          skills: [],
+          languages: [],
+        }
+      };
+      
+      if (currentCVId) {
+        // Actualizar CV existente
+        await cvService.updateCV(currentCVId, {
+          data: dataToSave
+        });
+        
+        // Actualizar en el estado local
+        setCvs(cvs.map(c => 
+          c.id === currentCVId ? { ...c, title: newTitle, data: dataToSave } : c
+        ));
+        
+        toast.success('CV actualizado correctamente');
+      } else {
+        // Crear nuevo CV - SOLO después del POST exitoso lo agregamos
+        const newCV = await cvService.createCV({
+          userId: user.id,
+          data: dataToSave
+        });
+        
+        // AHORA SÍ agregamos el CV a la lista con el ID del servidor
+        setCvs([...cvs, {
+          id: newCV.id,
+          title: newTitle,
+          templateId: dataToSave.templateId,
+          data: newCV.data
+        }]);
+        
+        setCurrentCVId(newCV.id);
+        toast.success('CV creado correctamente');
+      }
+      
+      // Volver al dashboard después de guardar
+      setCurrentView('my-cvs');
+      setCurrentCVId(null);
+      
+    } catch (error) {
+      console.error('Error saving CV:', error);
+      toast.error('Error al guardar el CV');
+    }
   };
 
   const handleExitEditor = () => {
@@ -128,11 +199,14 @@ export default function App() {
     if (savedUser) {
       setIsAuthenticated(true);
       setUser({
+        id: savedUser.id,
         name: savedUser.name,
         email: savedUser.email,
         fallback: savedUser.name.charAt(0).toUpperCase(),
       });
       setCurrentView('my-cvs');
+      // Cargar los CVs del usuario
+      loadUserCVs(savedUser.id);
     }
   };
 
@@ -164,12 +238,13 @@ export default function App() {
   }
 
   // 2. Vista del editor (Pantalla completa)
-  if (currentView === 'editor' && currentCVId) {
-    const currentCV = cvs.find(cv => cv.id === currentCVId);
+  if (currentView === 'editor') {
+    const currentCV = currentCVId ? cvs.find(cv => cv.id === currentCVId) : null;
     return (
       <CVEditorNew
         cvTitle={currentCV?.title || 'Nuevo Currículum'}
-        templateId={currentCV?.templateId || 'executive'}
+        templateId={currentCV?.templateId || currentTemplateId}
+        initialData={currentCV?.data?.formData}
         onSave={handleSaveCV}
         onExit={handleExitEditor}
       />
@@ -192,7 +267,7 @@ export default function App() {
           />
         );
       case 'profile':
-        return <UserSettingsWithSidebar />;
+        return user ? <UserSettingsWithSidebar user={user} /> : null;
       default:
         return null; // El editor se maneja arriba
     }
@@ -204,7 +279,7 @@ export default function App() {
       {/* NUEVO: Sidebar para Desktop (Colapsable) */}
       <AppSidebar 
         // MODIFICADO: El hack sigue siendo útil si estamos en 'editor'
-        currentView={currentView === 'editor' ? 'my-cvs' : currentView} 
+        currentView={currentView as NavView} 
         onNavigate={onSidebarNavigate}
         user={user!} // Sabemos que el usuario no es null aquí
         className="h-screen sticky top-0 hidden md:flex" // Layout para desktop
@@ -225,7 +300,7 @@ export default function App() {
             <SheetContent side="left" className="p-0 w-72">
               {/* Sidebar para Móvil (dentro del Sheet) */}
               <AppSidebar
-                currentView={currentView === 'editor' ? 'my-cvs' : currentView}
+                currentView={currentView as NavView}
                 onNavigate={onSidebarNavigate}
                 user={user!}
               />

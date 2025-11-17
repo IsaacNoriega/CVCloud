@@ -7,10 +7,20 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { User, Upload, Mail, Lock, UserCircle, CheckCircle } from 'lucide-react';
 
-export function UserSettingsWithSidebar() {
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface UserSettingsWithSidebarProps {
+  user: UserProfile;
+}
+
+export function UserSettingsWithSidebar({ user }: UserSettingsWithSidebarProps) {
   const [userData, setUserData] = useState({
-    name: 'María García',
-    email: 'maria.garcia@ejemplo.com',
+    name: user.name,
+    email: user.email,
   });
 
   // Estados para los modales

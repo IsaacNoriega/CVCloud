@@ -4,7 +4,6 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Switch } from './ui/switch';
-import { SaveModal } from './SaveModal';
 import { X, Save, Upload, Plus, Trash2, Edit2 } from 'lucide-react';
 import { ExecutivePreview } from './templates/ExecutivePreview';
 import { MinimalistPremiumPreview } from './templates/MinimalistPremiumPreview';
@@ -16,19 +15,19 @@ import { ElegantPreview } from './templates/ElegantPreview';
 interface CVEditorNewProps {
   cvTitle: string;
   templateId: string;
-  onSave: (title: string) => void;
+  initialData?: any;
+  onSave: (title: string, formData: any) => void;
   onExit: () => void;
 }
 
 type Section = 'personal' | 'experience' | 'education' | 'skills' | 'languages';
 
-export function CVEditorNew({ cvTitle, templateId, onSave, onExit }: CVEditorNewProps) {
-  const [showSaveModal, setShowSaveModal] = useState(false);
+export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }: CVEditorNewProps) {
   const [currentSection, setCurrentSection] = useState<Section>('personal');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(cvTitle);
   const [showPhoto, setShowPhoto] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(initialData || {
     name: '',
     email: '',
     phone: '',
@@ -185,8 +184,7 @@ export function CVEditorNew({ cvTitle, templateId, onSave, onExit }: CVEditorNew
   };
 
   const handleSave = () => {
-    onSave(title);
-    setShowSaveModal(false);
+    onSave(title, formData);
   };
 
   // Renderizar el preview según la plantilla
@@ -239,7 +237,7 @@ export function CVEditorNew({ cvTitle, templateId, onSave, onExit }: CVEditorNew
             )}
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => setShowSaveModal(true)} className="gap-2">
+            <Button onClick={handleSave} className="gap-2">
               <Save className="h-4 w-4" />
               Guardar
             </Button>
@@ -612,13 +610,6 @@ export function CVEditorNew({ cvTitle, templateId, onSave, onExit }: CVEditorNew
           </div>
         </div>
       </div>
-
-      <SaveModal
-        open={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
-        onUpdateOriginal={handleSave}
-        onSaveAsCopy={handleSave}
-      />
     </div>
   );
 }
