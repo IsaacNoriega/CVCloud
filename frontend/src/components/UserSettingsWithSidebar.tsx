@@ -4,8 +4,9 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import { Mail, Lock, UserCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, UserCircle, CheckCircle, Trash2, AlertTriangle } from 'lucide-react';
 import userService from '../services/userService';
+import authService from '../services/authService';
 import { toast } from 'sonner';
 
 interface UserProfile {
@@ -17,9 +18,10 @@ interface UserProfile {
 interface UserSettingsWithSidebarProps {
   user: UserProfile;
   onUserUpdate: (updatedUser: UserProfile) => void;
+  onAccountDeleted?: () => void;
 }
 
-export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWithSidebarProps) {
+export function UserSettingsWithSidebar({ user, onUserUpdate, onAccountDeleted }: UserSettingsWithSidebarProps) {
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
@@ -29,6 +31,7 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Estados temporales para los modales
   const [tempEmail, setTempEmail] = useState('');
@@ -36,6 +39,7 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   const handleOpenEmailModal = () => {
     setTempEmail(userData.email);
@@ -113,6 +117,26 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'ELIMINAR') {
+      toast.error('Debes escribir "ELIMINAR" para confirmar');
+      return;
+    }
+
+    try {
+      await userService.deleteUser(user.id);
+      toast.success('Cuenta eliminada exitosamente');
+      authService.logout();
+      setShowDeleteModal(false);
+      if (onAccountDeleted) {
+        onAccountDeleted();
+      }
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast.error(error.message || 'Error al eliminar la cuenta');
+    }
+  };
+
   return (
     <>
       <div className="flex-1 p-8">
@@ -186,6 +210,36 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
                 </div>
                 <Button variant="outline" size="sm" onClick={() => setShowPasswordModal(true)}>
                   Cambiar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone - Delete Account */}
+          <Card className="shadow-sm mt-8">
+            <CardHeader className="border-b">
+              <h2>Zona Peligrosa</h2>
+            </CardHeader>
+            
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between p-4 bg-destructive/10 rounded-lg border border-destructive/30 hover:bg-destructive/20 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <Trash2 className="h-5 w-5 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-destructive">Eliminar Cuenta</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Esta acción eliminará permanentemente tu cuenta y todos tus CVs
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Eliminar
                 </Button>
               </div>
             </CardContent>
@@ -329,6 +383,60 @@ export function UserSettingsWithSidebar({ user, onUserUpdate }: UserSettingsWith
             <Button onClick={handleSavePassword} className="gap-2">
               <CheckCircle className="h-4 w-4" />
               Actualizar Contraseña
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para Eliminar Cuenta */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Eliminar Cuenta Permanentemente
+            </DialogTitle>
+            <DialogDescription className="text-left pt-2">
+              Esta acción es <strong>irreversible</strong>. Se eliminarán:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Tu cuenta de usuario</li>
+                <li>Todos tus CVs guardados</li>
+                <li>Toda tu información personal</li>
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <p className="text-sm font-medium mb-2">Para confirmar, escribe <strong>ELIMINAR</strong> en el campo:</p>
+              <Input
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="Escribe ELIMINAR"
+                className="mt-2 border-destructive/50 focus:border-destructive"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteConfirmation('');
+              }}
+              className="flex-1 sm:flex-none"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmation !== 'ELIMINAR'}
+              className="flex-1 sm:flex-none gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Eliminar Cuenta
             </Button>
           </DialogFooter>
         </DialogContent>

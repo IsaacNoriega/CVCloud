@@ -232,6 +232,13 @@ export default function App() {
     }
   };
 
+  const handleAccountDeleted = () => {
+    // Redirigir a la pantalla de autenticación después de eliminar la cuenta
+    setIsAuthenticated(false);
+    setUser(null);
+    setCvs([]);
+  };
+
   // NUEVO: Wrapper para el prop onNavigate del sidebar
   const onSidebarNavigate = (view: AppView) => {
     if (view === 'auth') {
@@ -283,7 +290,7 @@ export default function App() {
           />
         );
       case 'profile':
-        return user ? <UserSettingsWithSidebar user={user} onUserUpdate={handleUserUpdate} /> : null;
+        return user ? <UserSettingsWithSidebar user={user} onUserUpdate={handleUserUpdate} onAccountDeleted={handleAccountDeleted} /> : null;
       default:
         return null; // El editor se maneja arriba
     }
