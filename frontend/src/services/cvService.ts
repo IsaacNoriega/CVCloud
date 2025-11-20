@@ -49,6 +49,12 @@ export interface UpdateCVRequest {
   data: CVData;
 }
 
+export interface GeneratePDFResponse {
+  message: string;
+  pdfUrl: string;
+  fileName: string;
+}
+
 class CVService {
   // Obtener todos los CVs de un usuario
   async getUserCVs(userId: string): Promise<CV[]> {
@@ -125,6 +131,22 @@ class CVService {
       const error = await response.json();
       throw new Error(error.error || 'Error al eliminar el CV');
     }
+  }
+
+  // Generar PDF
+  async generatePDF(id: string, htmlContent: string): Promise<GeneratePDFResponse> {
+    const response = await fetch(`${API_URL}/pdf/${id}/generate`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ htmlContent }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Error al generar el PDF');
+    }
+
+    return response.json();
   }
 }
 
