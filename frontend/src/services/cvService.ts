@@ -1,4 +1,5 @@
 import { API_URL, getHeaders } from '../config/api';
+import { generateCVHTML } from '../utils/pdfTemplates';
 
 export interface CVData {
   title: string;
@@ -134,11 +135,11 @@ class CVService {
   }
 
   // Generar PDF
-  async generatePDF(id: string, htmlContent: string): Promise<GeneratePDFResponse> {
+  async generatePDF(id: string, htmlContent: string, templateId?: string): Promise<GeneratePDFResponse> {
     const response = await fetch(`${API_URL}/pdf/${id}/generate`, {
       method: 'POST',
       headers: getHeaders(true),
-      body: JSON.stringify({ htmlContent }),
+      body: JSON.stringify({ htmlContent, templateId }),
     });
 
     if (!response.ok) {
@@ -147,6 +148,45 @@ class CVService {
     }
 
     return response.json();
+  }
+
+  // Descargar PDF - genera el HTML, envía a Lambda vía backend, y fuerza descarga automática
+  async downloadPDF(cv: CV): Promise<void> {
+    try {
+      // 1. Generar el HTML de la plantilla
+      const htmlContent = generateCVHTML(cv.data);
+      console.log('HTML generado para plantilla:', cv.data.templateId);
+
+      // 2. Enviar al backend que enviará a Lambda
+      const result = await this.generatePDF(cv.id, htmlContent, cv.data.templateId);
+      console.log('PDF generado en S3:', result.pdfUrl);
+
+      // 3. Forzar descarga automática creando un link temporal
+      const link = document.createElement('a');
+      link.href = result.pdfUrl;
+      link.target = '_blank'; // Abre en nueva pestaña por si falla la descarga
+      link.download = result.fileName || `CV-${cv.data.title}.pdf`; // Fuerza descarga
+      
+      // Agregar al DOM, hacer click, y remover
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('✅ PDF descargado automáticamente:', result.fileName);
+    } catch (error) {
+      console.error('❌ Error completo al descargar el PDF:', error);
+      
+      // Mensaje más específico según el error
+      if (error instanceof Error) {
+        if (error.message.includes('descargar el PDF desde S3')) {
+          throw new Error('El PDF se generó pero no se pudo descargar desde S3. Verifica la URL.');
+        } else if (error.message.includes('Error al generar el PDF')) {
+          throw new Error('Error en el servidor al generar el PDF');
+        }
+      }
+      
+      throw error;
+    }
   }
 }
 
