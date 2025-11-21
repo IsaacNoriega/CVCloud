@@ -9,7 +9,6 @@ import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 import authService from './services/authService';
 import cvService, { type CVData } from './services/cvService';
-import { downloadPDF } from './utils/htmlCapture';
 
 // NUEVO: Imports para el layout responsivo
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet';
@@ -109,44 +108,8 @@ export default function App() {
     try {
       toast.loading('Generando PDF...', { id: 'pdf-generation' });
       
-      // Crear un HTML básico con los datos del CV
-      // TODO: Mejorar esto para renderizar el template real
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <title>${cv.title}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 40px;
-              max-width: 800px;
-              margin: 0 auto;
-            }
-            h1 { color: #333; margin-bottom: 10px; }
-            .contact { color: #666; margin-bottom: 20px; }
-            .section { margin-top: 30px; }
-            .section h2 { color: #0066cc; border-bottom: 2px solid #0066cc; padding-bottom: 5px; }
-          </style>
-        </head>
-        <body>
-          <h1>${cv.data?.formData?.name || 'Sin nombre'}</h1>
-          <div class="contact">
-            <p>${cv.data?.formData?.email || ''}</p>
-            <p>${cv.data?.formData?.phone || ''}</p>
-            <p>${cv.data?.formData?.location || ''}</p>
-          </div>
-          ${cv.data?.formData?.summary ? `<div class="section"><h2>Resumen</h2><p>${cv.data.formData.summary}</p></div>` : ''}
-        </body>
-        </html>
-      `;
-      
-      // Llamar al servicio para generar el PDF
-      const result = await cvService.generatePDF(id, htmlContent);
-      
-      // Descargar el PDF
-      await downloadPDF(result.pdfUrl, result.fileName);
+      // El servicio maneja todo: generar HTML → enviar a Lambda → descargar desde S3
+      await cvService.downloadPDF(cv);
       
       toast.success('PDF descargado correctamente', { id: 'pdf-generation' });
       
