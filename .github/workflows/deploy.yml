@@ -20,34 +20,7 @@ jobs:
           echo "[OK] .env created"
           cat frontend/.env
 
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install --prefix frontend
-
-      - name: Build project
-        run: npm run build --prefix frontend
-
-      - name: Verify build output
-        run: |
-          echo "Checking if build folder exists..."
-          if [ -d "frontend/build" ]; then
-            echo "✓ build folder found"
-            ls -la frontend/build
-          else
-            echo "✗ ERROR: build folder not found!"
-            echo "Listing frontend directory:"
-            ls -la frontend/
-            exit 1
-          fi
-
-      - name: Debug folders
-        run: ls -R frontend
-
-      # Crear carpeta en EC2 si no existe
+      # Preparar carpeta en EC2 y limpiar archivos anteriores
       - name: Prepare target folder on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -57,20 +30,66 @@ jobs:
           script: |
             mkdir -p /home/ec2-user/frontend
             rm -rf /home/ec2-user/frontend/*
+            echo "✓ Target folder prepared"
+      
+      # Subir TODO el código fuente usando rsync
+      - name: Upload source code to EC2
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > private_key
+          chmod 600 private_key
+          rsync -avz --exclude 'node_modules' --exclude 'build' --exclude 'dist' -e "ssh -i private_key -o StrictHostKeyChecking=no" frontend/ ec2-user@${{ secrets.FRONT_HOST }}:/home/ec2-user/frontend/
+          rm -f private_key
+          echo "✓ Source code uploaded"
 
-      # Subir el build usando rsync
-      - name: Upload build to EC2
+      # Instalar Node.js y PM2 en EC2 (si no está instalado)
+      - name: Setup Node.js and PM2 on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.FRONT_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Files will be uploaded via rsync in next step"
-      
-      - name: Copy files via rsync
-        run: |
-          echo "${{ secrets.SSH_KEY }}" > private_key
-          chmod 600 private_key
-          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" frontend/build/ ec2-user@${{ secrets.FRONT_HOST }}:/home/ec2-user/frontend/
-          rm -f private_key
+            # Verificar si Node.js está instalado
+            if ! command -v node &> /dev/null; then
+              echo "Installing Node.js..."
+              curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+              sudo yum install -y nodejs
+              echo "✓ Node.js installed"
+            else
+              echo "✓ Node.js already installed: $(node -v)"
+            fi
+            
+            # Verificar si PM2 está instalado
+            if ! command -v pm2 &> /dev/null; then
+              echo "Installing PM2..."
+              sudo npm install -g pm2
+              echo "✓ PM2 installed"
+            else
+              echo "✓ PM2 already installed: $(pm2 -v)"
+            fi
+
+      # Instalar dependencias y arrancar la aplicación
+      - name: Install dependencies and start application
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.FRONT_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ec2-user/frontend
+            
+            echo "Installing dependencies..."
+            npm install
+            echo "✓ Dependencies installed"
+            
+            # Detener proceso anterior si existe
+            pm2 delete frontend 2>/dev/null || true
+            
+            # Iniciar la aplicación con PM2
+            echo "Starting application with PM2..."
+            pm2 start npm --name "frontend" -- run dev -- --host 0.0.0.0
+            pm2 save
+            pm2 startup systemd -u ec2-user --hp /home/ec2-user | tail -1 | sudo bash || true
+            
+            echo "✓ Application started"
+            pm2 status
