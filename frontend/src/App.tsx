@@ -31,6 +31,7 @@ interface UserProfile {
 
 interface CV {
   id: string;
+  userId: string;
   title: string;
   thumbnail?: string;
   templateId: string;
@@ -70,6 +71,7 @@ export default function App() {
       const userCVs = await cvService.getUserCVs(userId);
       const formattedCVs = userCVs.map(cv => ({
         id: cv.id,
+        userId: cv.userId,
         title: cv.data.title || 'CV sin título',
         templateId: cv.data.templateId || 'executive',
         data: cv.data,
@@ -177,6 +179,7 @@ export default function App() {
         // AHORA SÍ agregamos el CV a la lista con el ID del servidor
         setCvs([...cvs, {
           id: newCV.id,
+          userId: newCV.userId,
           title: newTitle,
           templateId: dataToSave.templateId,
           data: newCV.data
