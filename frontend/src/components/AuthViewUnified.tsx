@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 interface AuthViewUnifiedProps {
   onSuccess?: () => void;
+  
 }
 
 export function AuthViewUnified({ onSuccess }: AuthViewUnifiedProps) {
