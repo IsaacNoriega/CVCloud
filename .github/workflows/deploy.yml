@@ -13,9 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Crear .env dentro de frontend
       - name: Create .env file
         run: |
           echo "VITE_API_URL=http://${{ secrets.BACK_HOST }}:3000" > frontend/.env
+          echo "[OK] .env created"
+          cat frontend/.env
 
       - name: Install Node
         uses: actions/setup-node@v3
@@ -31,11 +34,23 @@ jobs:
       - name: Debug folders
         run: ls -R frontend
 
+      # Crear carpeta en EC2 si no existe
+      - name: Prepare target folder on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.FRONT_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            mkdir -p /home/ec2-user/frontend
+            rm -rf /home/ec2-user/frontend/*
+
+      # Subir el build
       - name: Upload build to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.FRONT_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_KEY }}
-          source: "./frontend/dist/*"
+          source: "frontend/dist/*"
           target: "/home/ec2-user/frontend"
