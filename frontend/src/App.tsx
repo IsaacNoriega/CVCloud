@@ -35,7 +35,7 @@ interface CV {
   title: string;
   thumbnail?: string;
   templateId: string;
-  data?: CVData;
+  data: CVData;
 }
 
 export default function App() {
