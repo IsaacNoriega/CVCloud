@@ -106,7 +106,7 @@ export function AppSidebar({
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isActive ? "accent" : "ghost"}
+                    variant={isActive ? "default" : "ghost"}
                     className={cn(
                       "w-full justify-start gap-3",
                       isActive
