@@ -31,6 +31,19 @@ jobs:
       - name: Build project
         run: npm run build --prefix frontend
 
+      - name: Verify build output
+        run: |
+          echo "Checking if build folder exists..."
+          if [ -d "frontend/build" ]; then
+            echo "✓ build folder found"
+            ls -la frontend/build
+          else
+            echo "✗ ERROR: build folder not found!"
+            echo "Listing frontend directory:"
+            ls -la frontend/
+            exit 1
+          fi
+
       - name: Debug folders
         run: ls -R frontend
 
@@ -59,5 +72,5 @@ jobs:
         run: |
           echo "${{ secrets.SSH_KEY }}" > private_key
           chmod 600 private_key
-          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" frontend/dist/ ec2-user@${{ secrets.FRONT_HOST }}:/home/ec2-user/frontend/
+          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" frontend/build/ ec2-user@${{ secrets.FRONT_HOST }}:/home/ec2-user/frontend/
           rm -f private_key
