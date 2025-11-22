@@ -172,9 +172,9 @@ class CVService {
       link.click();
       document.body.removeChild(link);
 
-      console.log('✅ PDF descargado automáticamente:', result.fileName);
+      console.log('PDF descargado automáticamente:', result.fileName);
     } catch (error) {
-      console.error('❌ Error completo al descargar el PDF:', error);
+      console.error('Error completo al descargar el PDF:', error);
       
       // Mensaje más específico según el error
       if (error instanceof Error) {

@@ -45,7 +45,14 @@ export function SidebarPreview({ data, showPhoto = false }: SidebarPreviewProps)
       {/* Sidebar oscura */}
       <div className="w-[40%] bg-gray-900 p-8 space-y-8 text-white">
         <div className="text-center space-y-4">
-          {showPhoto && (
+          {showPhoto && data.photo && (
+            <img 
+              src={data.photo} 
+              alt="Foto de perfil" 
+              className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-gray-800"
+            />
+          )}
+          {showPhoto && !data.photo && (
             <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto flex items-center justify-center">
               <span className="text-4xl">{data.name ? data.name[0].toUpperCase() : 'T'}</span>
             </div>

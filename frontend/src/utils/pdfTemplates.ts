@@ -1074,6 +1074,15 @@ function generateSidebarHTML(cvData: CVData): string {
       text-align: center;
       margin-bottom: 40px;
     }
+    .profile-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 20px;
+      display: block;
+      border: 4px solid #2d2d44;
+    }
     .sidebar-header h1 {
       color: white;
       font-size: 24px;
@@ -1162,6 +1171,7 @@ function generateSidebarHTML(cvData: CVData): string {
   <div class="container">
     <div class="sidebar">
       <div class="sidebar-header">
+        ${formData.photo ? `<img src="${formData.photo}" alt="Foto de perfil" class="profile-photo" />` : ''}
         <h1>${formData.name || 'Tu Nombre'}</h1>
       </div>
 

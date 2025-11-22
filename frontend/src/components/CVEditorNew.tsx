@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -27,6 +27,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(cvTitle);
   const [showPhoto, setShowPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(initialData || {
     name: '',
     email: '',
@@ -183,6 +184,33 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
     });
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar que sea imagen
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen');
+      return;
+    }
+
+    // Validar tamaño (max 2MB para base64)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen no puede pesar más de 2MB');
+      return;
+    }
+
+    // Convertir a base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({
+        ...formData,
+        photo: reader.result as string
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = () => {
     onSave(title, formData);
   };
@@ -296,10 +324,51 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                   {showPhoto && (
                     <div>
                       <Label htmlFor="photo">Foto de Perfil</Label>
-                      <Button variant="outline" className="w-full mt-2 gap-2">
-                        <Upload className="h-4 w-4" />
-                        Subir foto
-                      </Button>
+                      <input
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoChange}
+                      />
+                      
+                      {formData.photo ? (
+                        <div className="mt-2 space-y-2">
+                          <img 
+                            src={formData.photo} 
+                            alt="Foto de perfil" 
+                            className="w-32 h-32 object-cover rounded-lg border"
+                          />
+                          <div className="flex gap-2">
+                            <Button 
+                              type="button"
+                              variant="outline" 
+                              className="flex-1 gap-2"
+                              onClick={() => photoInputRef.current?.click()}
+                            >
+                              <Upload className="h-4 w-4" />
+                              Cambiar foto
+                            </Button>
+                            <Button 
+                              type="button"
+                              variant="destructive" 
+                              onClick={() => setFormData({...formData, photo: ''})}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button 
+                          type="button"
+                          variant="outline" 
+                          className="w-full mt-2 gap-2"
+                          onClick={() => photoInputRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4" />
+                          Seleccionar foto
+                        </Button>
+                      )}
                     </div>
                   )}
                   
