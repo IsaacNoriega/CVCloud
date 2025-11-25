@@ -28,6 +28,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build & Push Frontend
+        working-directory: ./frontend
         run: |
           # Pasamos la URL del backend como argumento de construcción
           docker build \
