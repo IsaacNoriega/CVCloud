@@ -1,0 +1,66 @@
+name: CI/CD Frontend CloudProject
+
+on:
+  push:
+    branches: [ "deploy-front" ]
+
+env:
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  IMAGE_FRONTEND: cloudproject/frontend
+
+jobs:
+  build-and-push:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build & Push Frontend
+        # OJO: Asumo que tu carpeta raíz del repo tiene una carpeta "CVCloud" y dentro "frontend"
+        working-directory: ./CVCloud/frontend 
+        run: |
+          # Pasamos la URL del backend como argumento de construcción
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_FRONTEND }}:latest .
+          
+          docker push ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_FRONTEND }}:latest
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            # Login
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+            
+            # Ir a la carpeta donde está el docker-compose del frontend
+            # Asegúrate que esta ruta exista en tu EC2
+            cd /home/ec2-user/CVCloud/frontend
+            
+            # Bajar y reiniciar
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+            
+            # Limpieza
+            docker image prune -f
