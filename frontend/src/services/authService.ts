@@ -27,7 +27,7 @@ export interface ErrorResponse {
 
 class AuthService {
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/users/register`, {
+    const response = await fetch(`api/users/register`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(data),
@@ -49,7 +49,7 @@ class AuthService {
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/users/login`, {
+    const response = await fetch(`api/users/login`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(data),
