@@ -1,4 +1,4 @@
-import { API_URL, getHeaders } from '../config/api';
+import {  getHeaders } from '../config/api';
 
 export interface User {
   id: string;
@@ -16,7 +16,7 @@ export interface UpdateUserRequest {
 class UserService {
   // Obtener usuario por ID
   async getUserById(id: string): Promise<User> {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`api/users/${id}`, {
       method: 'GET',
       headers: getHeaders(true),
     });
@@ -31,7 +31,7 @@ class UserService {
 
   // Actualizar usuario
   async updateUser(id: string, data: UpdateUserRequest): Promise<User> {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`api/users/${id}`, {
       method: 'PUT',
       headers: getHeaders(true),
       body: JSON.stringify(data),
@@ -48,7 +48,7 @@ class UserService {
 
   // Eliminar usuario
   async deleteUser(id: string): Promise<void> {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`api/users/${id}`, {
       method: 'DELETE',
       headers: getHeaders(true),
     });

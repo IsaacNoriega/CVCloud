@@ -1,4 +1,4 @@
-import { API_URL, getHeaders } from '../config/api';
+import { getHeaders } from '../config/api';
 
 export interface RegisterData {
   name: string;

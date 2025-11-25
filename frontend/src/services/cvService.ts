@@ -1,4 +1,4 @@
-import { API_URL, getHeaders } from '../config/api';
+import {getHeaders } from '../config/api';
 import { generateCVHTML } from '../utils/pdfTemplates';
 
 export interface CVData {
@@ -59,7 +59,7 @@ export interface GeneratePDFResponse {
 class CVService {
   // Obtener todos los CVs de un usuario
   async getUserCVs(userId: string): Promise<CV[]> {
-    const response = await fetch(`${API_URL}/cvs/user/${userId}`, {
+    const response = await fetch(`api/cvs/user/${userId}`, {
       method: 'GET',
       headers: getHeaders(true),
     });
@@ -74,7 +74,7 @@ class CVService {
 
   // Obtener un CV específico
   async getCVById(id: string): Promise<CV> {
-    const response = await fetch(`${API_URL}/cvs/${id}`, {
+    const response = await fetch(`api/cvs/${id}`, {
       method: 'GET',
       headers: getHeaders(true),
     });
@@ -89,7 +89,7 @@ class CVService {
 
   // Crear un nuevo CV
   async createCV(cvData: CreateCVRequest): Promise<CV> {
-    const response = await fetch(`${API_URL}/cvs`, {
+    const response = await fetch(`api/cvs`, {
       method: 'POST',
       headers: getHeaders(true),
       body: JSON.stringify(cvData),
@@ -106,7 +106,7 @@ class CVService {
 
   // Actualizar un CV existente
   async updateCV(id: string, cvData: UpdateCVRequest): Promise<CV> {
-    const response = await fetch(`${API_URL}/cvs/${id}`, {
+    const response = await fetch(`api/cvs/${id}`, {
       method: 'PUT',
       headers: getHeaders(true),
       body: JSON.stringify(cvData),
@@ -123,7 +123,7 @@ class CVService {
 
   // Eliminar un CV
   async deleteCV(id: string): Promise<void> {
-    const response = await fetch(`${API_URL}/cvs/${id}`, {
+    const response = await fetch(`api/cvs/${id}`, {
       method: 'DELETE',
       headers: getHeaders(true),
     });
@@ -136,7 +136,7 @@ class CVService {
 
   // Generar PDF
   async generatePDF(id: string, htmlContent: string, templateId?: string): Promise<GeneratePDFResponse> {
-    const response = await fetch(`${API_URL}/pdf/${id}/generate`, {
+    const response = await fetch(`api/pdf/${id}/generate`, {
       method: 'POST',
       headers: getHeaders(true),
       body: JSON.stringify({ htmlContent, templateId }),
