@@ -28,8 +28,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build & Push Frontend
-        # OJO: Asumo que tu carpeta raíz del repo tiene una carpeta "CVCloud" y dentro "frontend"
-        working-directory: ./CVCloud/frontend 
         run: |
           # Pasamos la URL del backend como argumento de construcción
           docker build \
