@@ -328,7 +328,7 @@ export default function App() {
       <main className="flex-1 flex flex-col w-full">
         
         {/* NUEVO: Header para Móvil con Menú (Sheet) */}
-        <header className="sticky top-0 z-10 flex md:hidden items-center justify-between p-4 border-b bg-background/95 backdrop-blur">
+        <header className="sticky top-0 z-10 flex md:hidden items-center justify-between p-4 border-b bg-white backdrop-blur">
           <span className="text-xl font-bold text-primary">CVMaker</span>
           <Sheet>
             <SheetTrigger asChild>
