@@ -2,10 +2,9 @@ name: CI/CD Frontend CloudProject
 
 on:
   push:
-    branches: [ "deploy-front" ]
+    branches: ["deploy-front"]
 
 env:
-  # ECR_REGISTRY usa el secreto de AWS_ACCOUNT_ID para mayor flexibilidad
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_FRONTEND: cloudproject/frontend
 
@@ -29,15 +28,15 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build & Push Frontend
-        # Usamos working-directory: ./frontend, asumiendo que es la carpeta que contiene el Dockerfile
-        working-directory: ./frontend 
+        working-directory: ./frontend
         run: |
-          # 1. Construir (inyectando la URL del backend)
+          echo "Construyendo imagen del frontend..."
           docker build \
+            --file Dockerfile \
             --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
             -t ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_FRONTEND }}:latest .
           
-          # 2. Subir a ECR
+          echo "Subiendo imagen a ECR..."
           docker push ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_FRONTEND }}:latest
 
   deploy:
@@ -53,28 +52,24 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # --- 1. PREPARACIÓN EN EL SERVIDOR (CRÍTICO) ---
-            # Aseguramos que la carpeta exista ANTES de intentar entrar
-            mkdir -p /home/ec2-user/CVCloud/frontend 
+            # --- 1. Preparación en servidor ---
+            mkdir -p /home/ec2-user/CVCloud/frontend
             cd /home/ec2-user/CVCloud/frontend
-            
-            # --- 2. CONFIGURACIÓN DE ACCESO AWS ---
-            # Exportar credenciales temporales para el 'aws ecr get-login-password'
+
+            # --- 2. Configuración de credenciales AWS ---
             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             export AWS_REGION=us-east-1
-            
-            # --- 3. LOGUEAR Y DESPLEGAR ---
-            echo "Iniciando login a ECR y reinicio de contenedores..."
-            
-            # Login a ECR (Ahora SÍ funcionará porque las credenciales están exportadas)
+
+            # --- 3. Login a ECR ---
+            echo "Iniciando login a ECR..."
             aws ecr get-login-password --region $AWS_REGION | \
             docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-            
-            # Bajar y reiniciar
+
+            # --- 4. Pull y up de Docker Compose ---
             docker-compose pull
             docker-compose up -d --remove-orphans
-            
+
             echo "Despliegue de Frontend completado."
             docker image prune -f
