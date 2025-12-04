@@ -330,21 +330,6 @@ export default function App() {
         {/* NUEVO: Header para Móvil con Menú (Sheet) */}
         <header className="sticky top-0 z-10 flex md:hidden items-center justify-between p-4 border-b bg-white backdrop-blur">
           <span className="text-xl font-bold text-primary">CVMaker</span>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72">
-              {/* Sidebar para Móvil (dentro del Sheet) */}
-              <AppSidebar
-                currentView={currentView as NavView}
-                onNavigate={onSidebarNavigate}
-                user={user!}
-              />
-            </SheetContent>
-          </Sheet>
         </header>
 
         {/* Contenido de la Página */}
