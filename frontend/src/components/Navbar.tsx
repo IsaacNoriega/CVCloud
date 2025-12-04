@@ -52,22 +52,7 @@ export function Navbar({
           </DropdownMenuTrigger>
           
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <p className="font-medium truncate">{userName}</p>
-              <p className="text-xs text-muted-foreground font-normal truncate">
-                {userEmail}
-              </p>
-            </DropdownMenuLabel>
-            
-            <DropdownMenuSeparator />
-            
-            {/* Aquí usamos la prop onUserClick que pasó */}
-            <DropdownMenuItem onClick={onUserClick} className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Ajustes</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
+            {/* Menú de usuario eliminado, no se muestra el icono de hamburguesa */}
             
             <DropdownMenuItem 
               onClick={onLogoutClick} 
