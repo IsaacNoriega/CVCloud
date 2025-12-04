@@ -37,7 +37,7 @@ export function Navbar({
         </button>
         
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          {/* <DropdownMenuTrigger asChild>
             <button
               className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label="Abrir menú de usuario"
@@ -49,18 +49,33 @@ export function Navbar({
                 </AvatarFallback>
               </Avatar>
             </button>
-          </DropdownMenuTrigger>
+          </DropdownMenuTrigger> */}
           
           <DropdownMenuContent align="end" className="w-56">
-            {/* Menú de usuario eliminado, no se muestra el icono de hamburguesa */}
+            {/* <DropdownMenuLabel>
+              <p className="font-medium truncate">{userName}</p>
+              <p className="text-xs text-muted-foreground font-normal truncate">
+                {userEmail}
+              </p>
+            </DropdownMenuLabel> */}
             
+            <DropdownMenuSeparator />
+            
+            {/* Aquí usamos la prop onUserClick que pasó */}
+            {/* <DropdownMenuItem onClick={onUserClick} className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Ajustes</span>
+            </DropdownMenuItem> */}
+            
+            <DropdownMenuSeparator />
+{/*             
             <DropdownMenuItem 
               onClick={onLogoutClick} 
               className="cursor-pointer text-destructive focus:text-destructive"
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar Sesión</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
