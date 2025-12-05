@@ -288,6 +288,16 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
               </button>
             )}
           </div>
+          <div className="flex items-center gap-3">
+            <Button onClick={handleSave} className="gap-2">
+              <Save className="h-4 w-4" />
+              Guardar
+            </Button>
+            <Button variant="ghost" onClick={onExit} className="gap-2">
+              <X className="h-4 w-4" />
+              Salir
+            </Button>
+          </div>
         </div>
 
         {/* Section Tabs */}
