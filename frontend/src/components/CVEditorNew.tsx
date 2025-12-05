@@ -1,13 +1,3 @@
-  // Plantillas que soportan foto
-  const templatesWithPhoto = [
-    'SidebarPreview',
-    'ModernGridPreview',
-    'MinimalistPremiumPreview',
-    'ExecutivePreview',
-    'ElegantPreview',
-    'CompactPreview'
-  ];
-  const supportsPhoto = templatesWithPhoto.includes(templateId);
 import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -33,6 +23,16 @@ interface CVEditorNewProps {
 type Section = 'personal' | 'experience' | 'education' | 'skills' | 'languages';
 
 export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }: CVEditorNewProps) {
+  const templatesWithPhoto = [
+    'sidebar-dark',
+    'modern-grid',
+    'minimal-premium',
+    'executive',
+    'elegant',
+    'compact'
+  ];
+  const supportsPhoto = templatesWithPhoto.includes(templateId);
+
   const [currentSection, setCurrentSection] = useState<Section>('personal');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(cvTitle);
