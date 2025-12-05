@@ -53,7 +53,7 @@ export function ModernGridPreview({ data, showPhoto = false }: ModernGridPreview
       {data.summary && (
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="mb-3 uppercase tracking-wide">Resumen</h3>
-          <p className="text-sm leading-relaxed text-gray-700">{data.summary}</p>
+            <p className="text-sm leading-relaxed text-gray-700 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.summary}</p>
         </div>
       )}
 

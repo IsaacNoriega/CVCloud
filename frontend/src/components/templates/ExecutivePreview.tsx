@@ -62,7 +62,7 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
       {data.summary && (
         <div>
           <h3 className="mb-3 uppercase tracking-wider border-b-2 border-gray-300 pb-2">Perfil Profesional</h3>
-          <p className="text-sm leading-relaxed">{data.summary}</p>
+          <p className="text-sm leading-relaxed break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.summary}</p>
         </div>
       )}
 
@@ -103,7 +103,7 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
           <h3 className="mb-4 uppercase tracking-wider border-b-2 border-gray-300 pb-2">Habilidades</h3>
           <div className="flex flex-wrap gap-2">
             {data.skills.map((skill, index) => (
-              <span key={index} className="px-4 py-2 bg-gray-900 text-white text-sm max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>
+              <span key={index} className="px-4 py-2 bg-gray-900 text-white text-sm max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap break-words" title={skill}>
                 {skill}
               </span>
             ))}

@@ -44,7 +44,6 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
     <div className="w-full h-full bg-white p-12 relative">
       {/* Línea decorativa superior */}
       <div className="absolute top-0 left-12 right-12 h-2 bg-gray-900"></div>
-
       <div className="pt-10 space-y-8">
         {/* Header centrado elegante */}
         <div className="text-center space-y-3 pb-6">
@@ -57,7 +56,7 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
         {/* Resumen */}
         {data.summary && (
           <div className="text-center max-w-2xl mx-auto">
-            <p className="text-sm leading-loose text-gray-700 italic">{data.summary}</p>
+            <p className="text-sm leading-loose text-gray-700 italic break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.summary}</p>
           </div>
         )}
 
@@ -109,37 +108,30 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
         {/* Habilidades e Idiomas en grid */}
         <div className="grid grid-cols-2 gap-8 pt-4 max-w-3xl mx-auto">
           {/* Habilidades */}
-          {data.skills.length > 0 && data.skills[0] !== '' && (
-            <div>
-              <h3 className="text-center mb-4 uppercase tracking-widest text-sm">Habilidades</h3>
-              <div className="space-y-2">
-                {data.skills.map((skill, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <span className="text-sm text-gray-700 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>{skill}</span>
-                  </div>
-                ))}
-              </div>
+          <div>
+            <h3 className="text-center mb-4 uppercase tracking-widest text-sm">Habilidades</h3>
+            <div className="space-y-2">
+              {data.skills.map((skill, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <span className="text-sm text-gray-700 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>{skill}</span>
+                </div>
+              ))}
             </div>
-          )}
-
+          </div>
           {/* Idiomas */}
-          {data.languages.length > 0 && (
-            <div>
-              <h3 className="text-center mb-4 uppercase tracking-widest text-sm">Idiomas</h3>
-              <div className="space-y-2">
-                {data.languages.map((lang) => (
-                  <div key={lang.id} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <div className="flex-1 flex justify-between text-sm">
-                      <span className="text-gray-700 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.language}>{lang.language || 'Idioma'}</span>
-                      <span className="text-gray-500 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.level}>{lang.level}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div>
+            <h3 className="text-center mb-4 uppercase tracking-widest text-sm">Idiomas</h3>
+            <div className="space-y-2">
+              {data.languages.map((lang) => (
+                <div key={lang.id} className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <span className="text-gray-700 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.language}>{lang.language || 'Idioma'}</span>
+                  <span className="text-gray-500 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.level}>{lang.level}</span>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
