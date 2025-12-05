@@ -219,7 +219,12 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   };
 
   const handleSave = () => {
-    onSave(title, formData);
+    // Solo enviar photo si la plantilla soporta foto y está activado
+    let dataToSave = { ...formData };
+    if (!supportsPhoto || !showPhoto) {
+      delete dataToSave.photo;
+    }
+    onSave(title, dataToSave);
   };
 
   // Renderizar el preview según la plantilla

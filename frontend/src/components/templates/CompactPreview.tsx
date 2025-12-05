@@ -34,20 +34,39 @@ interface CVData {
   languages: Language[];
 }
 
+
+import React, { useState } from "react";
+
 interface CompactPreviewProps {
   data: CVData;
   showPhoto?: boolean;
 }
 
 export function CompactPreview({ data, showPhoto = false }: CompactPreviewProps) {
+  const [photoError, setPhotoError] = useState(false);
   return (
     <div className="w-full h-full bg-white p-10 space-y-5">
-      {/* Header compacto con inicial */}
+      {/* Header compacto con inicial o foto */}
       <div className="flex items-start gap-5 pb-5 border-b-2 border-gray-900">
         {showPhoto && (
-          <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-3xl text-white">{data.name ? data.name[0].toUpperCase() : 'T'}</span>
-          </div>
+          <>
+            {data.photo && !photoError ? (
+              <img
+                src={data.photo}
+                alt="Foto de perfil"
+                className="w-20 h-20 object-cover rounded-full border-4 border-primary/30 shadow-md flex-shrink-0"
+                onError={() => setPhotoError(true)}
+              />
+            ) : data.photo && photoError ? (
+              <div className="w-20 h-20 flex items-center justify-center flex-shrink-0 bg-red-100 border border-red-400 rounded-full">
+                <span className="text-xs text-red-600 text-center px-2">La foto no se pudo cargar. Intenta con otra imagen.</span>
+              </div>
+            ) : (
+              <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-3xl text-white">{data.name ? data.name[0].toUpperCase() : 'T'}</span>
+              </div>
+            )}
+          </>
         )}
         <div className="flex-1 pt-1">
           <h1 className="mb-2">{data.name || 'Tu Nombre'}</h1>
