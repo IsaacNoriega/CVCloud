@@ -1,4 +1,4 @@
-  // Plantillas que soportan foto
+// Plantillas que soportan foto
   // Solo SidebarPreview y CompactPreview permiten foto
   const templatesWithPhoto = [
     'SidebarPreview',
@@ -310,65 +310,47 @@ export function CVEditor({ cvTitle, onSave, onExit }: CVEditorProps) {
         {/* Preview Panel */}
         <div className="bg-gray-100 p-8 overflow-y-auto border-l">
           <div className="max-w-[210mm] mx-auto bg-white shadow-lg p-12 aspect-[1/1.414]">
-            {/* CV Preview */}
-            <div className="space-y-6">
-              <div className="text-center border-b pb-6">
-                <h1 className="mb-2">{formData.name}</h1>
-                <p className="text-sm text-muted-foreground">{formData.email} • {formData.phone}</p>
-                <p className="text-sm text-muted-foreground">{formData.location}</p>
-              </div>
-              
-              <div>
-                <h3 className="mb-3 text-primary">Resumen</h3>
-                <p className="text-sm">{formData.summary}</p>
-              </div>
-              
-              <div>
-                <h3 className="mb-3 text-primary">Experiencia</h3>
-                <div className="space-y-4">
+            {/* CV Preview: solo datos, sin encabezados ni textos extra */}
+            <div>
+              <h1 className="mb-2">{formData.name}</h1>
+              <p className="text-sm">{formData.email} • {formData.phone}</p>
+              <p className="text-sm">{formData.location}</p>
+              {formData.summary && (
+                <p className="mt-4 text-sm">{formData.summary}</p>
+              )}
+              {formData.experiences.length > 0 && (
+                <div className="mt-6">
                   {formData.experiences.map((exp) => (
-                    <div key={exp.id}>
-                      <h4>{exp.position}</h4>
-                      <p className="text-sm">{exp.company} • {exp.period}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{exp.description}</p>
+                    <div key={exp.id} className="mb-2">
+                      <strong>{exp.position}</strong> <span className="text-sm">{exp.company} • {exp.period}</span>
+                      {exp.description && <p className="text-sm mt-1">{exp.description}</p>}
                     </div>
                   ))}
                 </div>
-              </div>
-              
-              <div>
-                <h3 className="mb-3 text-primary">Educación</h3>
-                <div className="space-y-3">
+              )}
+              {formData.education.length > 0 && (
+                <div className="mt-6">
                   {formData.education.map((edu) => (
-                    <div key={edu.id}>
-                      <h4>{edu.degree}</h4>
-                      <p className="text-sm">{edu.institution} • {edu.period}</p>
+                    <div key={edu.id} className="mb-2">
+                      <strong>{edu.degree}</strong> <span className="text-sm">{edu.institution} • {edu.period}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-              
-              <div>
-                <h3 className="mb-3 text-primary">Habilidades</h3>
-                <div className="flex flex-wrap gap-2">
+              )}
+              {formData.skills.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2">
                   {formData.skills.map((skill, index) => (
-                    <span key={index} className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
-                      {skill}
-                    </span>
+                    <span key={index} className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">{skill}</span>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      <SaveModal
-        open={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
-        onUpdateOriginal={onSave}
-        onSaveAsCopy={onSave}
-      />
+      {/* Modals */}
+      <SaveModal open={showSaveModal} onOpenChange={setShowSaveModal} onSave={onSave} />
     </div>
   );
 }
