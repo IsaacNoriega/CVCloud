@@ -35,6 +35,7 @@ export interface CVData {
 }
 
 
+
 import React, { useState } from "react";
 
 interface CompactPreviewProps {
