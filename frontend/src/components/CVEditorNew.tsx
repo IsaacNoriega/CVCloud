@@ -1,3 +1,13 @@
+  // Plantillas que soportan foto
+  const templatesWithPhoto = [
+    'SidebarPreview',
+    'ModernGridPreview',
+    'MinimalistPremiumPreview',
+    'ExecutivePreview',
+    'ElegantPreview',
+    'CompactPreview'
+  ];
+  const supportsPhoto = templatesWithPhoto.includes(templateId);
 import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -305,71 +315,73 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                 <h3 className="mb-6">Datos Personales</h3>
                 
                 <div className="p-6 bg-card rounded-lg border space-y-4">
-                  {/* Toggle para foto */}
-                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="photo-toggle">Incluir Foto de Perfil</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Activa para agregar una foto a tu currículum
-                      </p>
-                    </div>
-                    <Switch
-                      id="photo-toggle"
-                      checked={showPhoto}
-                      onCheckedChange={setShowPhoto}
-                    />
-                  </div>
-                  
-                  {/* Campo de foto solo si está activado */}
-                  {showPhoto && (
-                    <div>
-                      <Label htmlFor="photo">Foto de Perfil</Label>
-                      <input
-                        ref={photoInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handlePhotoChange}
-                      />
-                      
-                      {formData.photo ? (
-                        <div className="mt-2 space-y-2">
-                          <img 
-                            src={formData.photo} 
-                            alt="Foto de perfil" 
-                            className="w-32 h-32 object-cover rounded-lg border"
+                  {/* Mostrar toggle/campo de foto solo si la plantilla lo soporta */}
+                  {supportsPhoto && (
+                    <>
+                      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="photo-toggle">Incluir Foto de Perfil</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Activa para agregar una foto a tu currículum
+                          </p>
+                        </div>
+                        <Switch
+                          id="photo-toggle"
+                          checked={showPhoto}
+                          onCheckedChange={setShowPhoto}
+                        />
+                      </div>
+                      {/* Campo de foto solo si está activado */}
+                      {showPhoto && (
+                        <div>
+                          <Label htmlFor="photo">Foto de Perfil</Label>
+                          <input
+                            ref={photoInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handlePhotoChange}
                           />
-                          <div className="flex gap-2">
+                          {formData.photo ? (
+                            <div className="mt-2 space-y-2">
+                              <img 
+                                src={formData.photo} 
+                                alt="Foto de perfil" 
+                                className="w-32 h-32 object-cover rounded-lg border"
+                              />
+                              <div className="flex gap-2">
+                                <Button 
+                                  type="button"
+                                  variant="outline" 
+                                  className="flex-1 gap-2"
+                                  onClick={() => photoInputRef.current?.click()}
+                                >
+                                  <Upload className="h-4 w-4" />
+                                  Cambiar foto
+                                </Button>
+                                <Button 
+                                  type="button"
+                                  variant="destructive" 
+                                  onClick={() => setFormData({...formData, photo: ''})}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
                             <Button 
                               type="button"
                               variant="outline" 
-                              className="flex-1 gap-2"
+                              className="mt-2 gap-2"
                               onClick={() => photoInputRef.current?.click()}
                             >
                               <Upload className="h-4 w-4" />
-                              Cambiar foto
+                              Subir foto
                             </Button>
-                            <Button 
-                              type="button"
-                              variant="destructive" 
-                              onClick={() => setFormData({...formData, photo: ''})}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          )}
                         </div>
-                      ) : (
-                        <Button 
-                          type="button"
-                          variant="outline" 
-                          className="w-full mt-2 gap-2"
-                          onClick={() => photoInputRef.current?.click()}
-                        >
-                          <Upload className="h-4 w-4" />
-                          Seleccionar foto
-                        </Button>
                       )}
-                    </div>
+                    </>
                   )}
                   
                   <div>

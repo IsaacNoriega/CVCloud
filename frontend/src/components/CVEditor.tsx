@@ -1,3 +1,15 @@
+  // Plantillas que soportan foto
+  const templatesWithPhoto = [
+    'SidebarPreview',
+    'ModernGridPreview',
+    'MinimalistPremiumPreview',
+    'ExecutivePreview',
+    'ElegantPreview',
+    'CompactPreview'
+  ];
+  // Suponiendo que tienes una variable templateId en el editor clásico, si no, agrega la lógica para obtenerla
+  const templateId = 'SidebarPreview'; // Reemplaza esto por la lógica real de selección de plantilla
+  const supportsPhoto = templatesWithPhoto.includes(templateId);
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -112,13 +124,16 @@ export function CVEditor({ cvTitle, onSave, onExit }: CVEditorProps) {
                   <h3>Datos Personales</h3>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
-                  <div>
-                    <Label htmlFor="photo">Foto de Perfil (Opcional)</Label>
-                    <Button variant="outline" className="w-full mt-2 gap-2">
-                      <Upload className="h-4 w-4" />
-                      Subir foto
-                    </Button>
-                  </div>
+                  {/* Mostrar campo de foto solo si la plantilla lo soporta */}
+                  {supportsPhoto && (
+                    <div>
+                      <Label htmlFor="photo">Foto de Perfil (Opcional)</Label>
+                      <Button variant="outline" className="w-full mt-2 gap-2">
+                        <Upload className="h-4 w-4" />
+                        Subir foto
+                      </Button>
+                    </div>
+                  )}
                   
                   <div>
                     <Label htmlFor="name">Nombre Completo</Label>
