@@ -48,10 +48,10 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
       <div className="pt-10 space-y-8">
         {/* Header centrado elegante */}
         <div className="text-center space-y-3 pb-6">
-          <h1 className="mb-3">{data.name || 'Tu Nombre'}</h1>
+          <h1 className="mb-3 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.name || 'Tu Nombre'}</h1>
           <div className="h-px w-24 bg-gray-300 mx-auto"></div>
-          <p className="text-sm text-gray-600">{data.email}</p>
-          <p className="text-sm text-gray-600">{data.phone} {data.location && `• ${data.location}`}</p>
+          <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={data.email}>{data.email}</p>
+          <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={data.phone}>{data.phone} {data.location && `• ${data.location}`}</p>
         </div>
 
         {/* Resumen */}
@@ -76,7 +76,7 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
                   <div className="flex-1">
                     <h4 className="mb-1">{exp.position || 'Puesto'}</h4>
                     <p className="text-sm text-gray-600 mb-2">{exp.company} {exp.period && `• ${exp.period}`}</p>
-                    {exp.description && <p className="text-sm text-gray-600 leading-relaxed">{exp.description}</p>}
+                    {exp.description && <p className="text-sm text-gray-600 leading-relaxed break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={exp.description}>{exp.description}</p>}
                   </div>
                 </div>
               ))}
@@ -98,7 +98,7 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
                   <div className="w-3 h-3 bg-gray-900 rounded-full mt-1 flex-shrink-0"></div>
                   <div className="flex-1">
                     <h4 className="mb-1">{edu.degree || 'Título'}</h4>
-                    <p className="text-sm text-gray-600">{edu.institution} {edu.period && `• ${edu.period}`}</p>
+                    <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={edu.institution}>{edu.institution} {edu.period && `• ${edu.period}`}</p>
                   </div>
                 </div>
               ))}
@@ -116,7 +116,7 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
                 {data.skills.map((skill, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <span className="text-sm text-gray-700">{skill}</span>
+                    <span className="text-sm text-gray-700 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>{skill}</span>
                   </div>
                 ))}
               </div>
@@ -132,8 +132,8 @@ export function ElegantPreview({ data, showPhoto = false }: ElegantPreviewProps)
                   <div key={lang.id} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                     <div className="flex-1 flex justify-between text-sm">
-                      <span className="text-gray-700">{lang.language || 'Idioma'}</span>
-                      <span className="text-gray-500">{lang.level}</span>
+                      <span className="text-gray-700 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.language}>{lang.language || 'Idioma'}</span>
+                      <span className="text-gray-500 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.level}>{lang.level}</span>
                     </div>
                   </div>
                 ))}

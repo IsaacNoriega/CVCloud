@@ -45,27 +45,26 @@ export function SidebarPreview({ data, showPhoto = false }: SidebarPreviewProps)
       {/* Sidebar oscura */}
       <div className="w-[40%] bg-gray-900 p-8 space-y-8 text-white">
         <div className="text-center space-y-4">
-          {showPhoto && data.photo && (
+          {showPhoto && data.photo ? (
             <img 
               src={data.photo} 
               alt="Foto de perfil" 
               className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-gray-800"
             />
-          )}
-          {showPhoto && !data.photo && (
+          ) : showPhoto ? (
             <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto flex items-center justify-center">
               <span className="text-4xl">{data.name ? data.name[0].toUpperCase() : 'T'}</span>
             </div>
-          )}
+          ) : null}
           <h2 className="text-white">{data.name || 'Tu Nombre'}</h2>
         </div>
 
         <div className="space-y-3 pt-4">
           <div>
             <h4 className="text-gray-400 text-sm mb-2 uppercase tracking-wider">Contacto</h4>
-            <p className="text-sm text-gray-300 break-words">{data.email}</p>
-            <p className="text-sm text-gray-300">{data.phone}</p>
-            <p className="text-sm text-gray-300">{data.location}</p>
+            <p className="text-sm text-gray-300 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.email}</p>
+            <p className="text-sm text-gray-300 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.phone}</p>
+            <p className="text-sm text-gray-300 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.location}</p>
           </div>
         </div>
 
@@ -75,7 +74,7 @@ export function SidebarPreview({ data, showPhoto = false }: SidebarPreviewProps)
             <h4 className="text-gray-400 text-sm mb-3 uppercase tracking-wider">Habilidades</h4>
             <div className="flex flex-wrap gap-2">
               {data.skills.map((skill, index) => (
-                <span key={index} className="px-3 py-1 bg-gray-800 text-white text-xs rounded">
+                <span key={index} className="px-3 py-1 bg-gray-800 text-white text-xs rounded max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>
                   {skill}
                 </span>
               ))}
@@ -118,7 +117,7 @@ export function SidebarPreview({ data, showPhoto = false }: SidebarPreviewProps)
                 <div key={exp.id}>
                   <h4 className="mb-1">{exp.position || 'Puesto'}</h4>
                   <p className="text-sm text-gray-600 mb-2">{exp.company} {exp.period && `• ${exp.period}`}</p>
-                  {exp.description && <p className="text-sm text-gray-600 leading-relaxed">{exp.description}</p>}
+                  {exp.description && <p className="text-sm text-gray-600 leading-relaxed break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={exp.description}>{exp.description}</p>}
                 </div>
               ))}
             </div>
@@ -133,7 +132,7 @@ export function SidebarPreview({ data, showPhoto = false }: SidebarPreviewProps)
               {data.education.map((edu) => (
                 <div key={edu.id}>
                   <h4 className="mb-1">{edu.degree || 'Título'}</h4>
-                  <p className="text-sm text-gray-600">{edu.institution} {edu.period && `• ${edu.period}`}</p>
+                  <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{edu.institution} {edu.period && `• ${edu.period}`}</p>
                 </div>
               ))}
             </div>

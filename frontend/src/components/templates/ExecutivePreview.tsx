@@ -44,10 +44,10 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
     <div className="w-full h-full bg-white p-12 space-y-6">
       {/* Header con línea horizontal */}
       <div className="border-b-4 border-gray-900 pb-6">
-        <h1 className="mb-3">{data.name || 'Tu Nombre'}</h1>
+        <h1 className="mb-3 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{data.name || 'Tu Nombre'}</h1>
         <div className="space-y-1">
-          <p className="text-sm text-gray-600">{data.email} {data.phone && `• ${data.phone}`}</p>
-          <p className="text-sm text-gray-600">{data.location}</p>
+          <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={data.email}>{data.email} {data.phone && `• ${data.phone}`}</p>
+          <p className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={data.location}>{data.location}</p>
           {(data.linkedin || data.website) && (
             <p className="text-sm text-gray-600">
               {data.linkedin && data.linkedin}
@@ -75,7 +75,7 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
               <div key={exp.id}>
                 <h4 className="mb-1">{exp.position || 'Puesto'}</h4>
                 <p className="text-sm mb-2">{exp.company} {exp.period && `• ${exp.period}`}</p>
-                {exp.description && <p className="text-sm text-gray-600 leading-relaxed">{exp.description}</p>}
+                {exp.description && <p className="text-sm text-gray-600 leading-relaxed break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={exp.description}>{exp.description}</p>}
               </div>
             ))}
           </div>
@@ -90,7 +90,7 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
             {data.education.map((edu) => (
               <div key={edu.id}>
                 <h4 className="mb-1">{edu.degree || 'Título'}</h4>
-                <p className="text-sm">{edu.institution} {edu.period && `• ${edu.period}`}</p>
+                <p className="text-sm break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={edu.institution}>{edu.institution} {edu.period && `• ${edu.period}`}</p>
               </div>
             ))}
           </div>
@@ -103,7 +103,7 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
           <h3 className="mb-4 uppercase tracking-wider border-b-2 border-gray-300 pb-2">Habilidades</h3>
           <div className="flex flex-wrap gap-2">
             {data.skills.map((skill, index) => (
-              <span key={index} className="px-4 py-2 bg-gray-900 text-white text-sm">
+              <span key={index} className="px-4 py-2 bg-gray-900 text-white text-sm max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap" title={skill}>
                 {skill}
               </span>
             ))}
@@ -118,8 +118,8 @@ export function ExecutivePreview({ data, showPhoto = false }: ExecutivePreviewPr
           <div className="grid grid-cols-2 gap-3">
             {data.languages.map((lang) => (
               <div key={lang.id} className="flex justify-between">
-                <span className="text-sm">{lang.language || 'Idioma'}</span>
-                <span className="text-sm text-gray-600">{lang.level}</span>
+                <span className="text-sm break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.language}>{lang.language || 'Idioma'}</span>
+                <span className="text-sm text-gray-600 break-words max-w-full overflow-hidden text-ellipsis whitespace-nowrap" title={lang.level}>{lang.level}</span>
               </div>
             ))}
           </div>
