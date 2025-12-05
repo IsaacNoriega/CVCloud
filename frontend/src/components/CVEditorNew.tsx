@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -32,12 +32,11 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
 
   // Si el usuario cambia de plantilla a una que no soporta foto, desactivar showPhoto
   // (esto previene que quede activado si cambia de plantilla)
-  import { useEffect } from 'react';
   useEffect(() => {
     if (!supportsPhoto && showPhoto) {
       setShowPhoto(false);
     }
-  }, [supportsPhoto]);
+  }, [supportsPhoto, showPhoto]);
 
   const [currentSection, setCurrentSection] = useState<Section>('personal');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -87,7 +86,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   const updateExperience = (id: string, field: string, value: string) => {
     setFormData({
       ...formData,
-      experiences: formData.experiences.map(exp =>
+      experiences: formData.experiences.map((exp: any) =>
         exp.id === id ? { ...exp, [field]: value } : exp
       )
     });
@@ -112,14 +111,14 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   const removeExperience = (id: string) => {
     setFormData({
       ...formData,
-      experiences: formData.experiences.filter(exp => exp.id !== id)
+      experiences: formData.experiences.filter((exp: any) => exp.id !== id)
     });
   };
 
   const updateEducation = (id: string, field: string, value: string) => {
     setFormData({
       ...formData,
-      education: formData.education.map(edu =>
+      education: formData.education.map((edu: any) =>
         edu.id === id ? { ...edu, [field]: value } : edu
       )
     });
@@ -143,14 +142,14 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   const removeEducation = (id: string) => {
     setFormData({
       ...formData,
-      education: formData.education.filter(edu => edu.id !== id)
+      education: formData.education.filter((edu: any) => edu.id !== id)
     });
   };
 
   const updateLanguage = (id: string, field: string, value: string) => {
     setFormData({
       ...formData,
-      languages: formData.languages.map(lang =>
+      languages: formData.languages.map((lang: any) =>
         lang.id === id ? { ...lang, [field]: value } : lang
       )
     });
@@ -196,7 +195,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
   const removeSkill = (index: number) => {
     setFormData({
       ...formData,
-      skills: formData.skills.filter((_, i) => i !== index)
+      skills: formData.skills.filter((_: any, i: number) => i !== index)
     });
   };
 
@@ -229,7 +228,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
 
   const handleSave = () => {
     // Solo enviar photo si la plantilla soporta foto y está activado
-    let dataToSave = { ...formData };
+    const dataToSave = { ...formData };
     if (!supportsPhoto || !showPhoto) {
       delete dataToSave.photo;
     }
@@ -493,7 +492,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                   </Button>
                 </div>
                 
-                {formData.experiences.map((exp, index) => (
+                {formData.experiences.map((exp: any, index: number) => (
                   <div key={exp.id} className="p-6 bg-card rounded-lg border space-y-4">
                     <div className="flex items-center justify-between">
                       <h4>Experiencia {index + 1}</h4>
@@ -564,7 +563,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                   </Button>
                 </div>
                 
-                {formData.education.map((edu, index) => (
+                {formData.education.map((edu: any, index: number) => (
                   <div key={edu.id} className="p-6 bg-card rounded-lg border space-y-4">
                     <div className="flex items-center justify-between">
                       <h4>Educación {index + 1}</h4>
@@ -624,7 +623,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                   </Button>
                 </div>
                 
-                {formData.skills.map((skill, index) => (
+                {formData.skills.map((skill: string, index: number) => (
                   <div key={index} className="p-6 bg-card rounded-lg border">
                     <div className="flex items-center justify-between mb-4">
                       <h4>Habilidad {index + 1}</h4>
@@ -659,7 +658,7 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                   </Button>
                 </div>
                 
-                {formData.languages.map((lang, index) => (
+                {formData.languages.map((lang: any, index: number) => (
                   <div key={lang.id} className="p-6 bg-card rounded-lg border space-y-4">
                     <div className="flex items-center justify-between">
                       <h4>Idioma {index + 1}</h4>
