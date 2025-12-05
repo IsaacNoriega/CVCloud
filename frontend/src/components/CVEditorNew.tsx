@@ -23,13 +23,10 @@ interface CVEditorNewProps {
 type Section = 'personal' | 'experience' | 'education' | 'skills' | 'languages';
 
 export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }: CVEditorNewProps) {
+  // Solo SidebarPreview y CompactPreview permiten foto
   const templatesWithPhoto = [
-    'sidebar-dark',
-    'modern-grid',
-    'minimal-premium',
-    'executive',
-    'elegant',
-    'compact'
+    'sidebar-dark', // Asegúrate que este es el id correcto para SidebarPreview
+    'compact'      // Asegúrate que este es el id correcto para CompactPreview
   ];
   const supportsPhoto = templatesWithPhoto.includes(templateId);
 

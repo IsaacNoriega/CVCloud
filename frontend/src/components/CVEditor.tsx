@@ -1,10 +1,7 @@
   // Plantillas que soportan foto
+  // Solo SidebarPreview y CompactPreview permiten foto
   const templatesWithPhoto = [
     'SidebarPreview',
-    'ModernGridPreview',
-    'MinimalistPremiumPreview',
-    'ExecutivePreview',
-    'ElegantPreview',
     'CompactPreview'
   ];
   // Suponiendo que tienes una variable templateId en el editor clásico, si no, agrega la lógica para obtenerla
