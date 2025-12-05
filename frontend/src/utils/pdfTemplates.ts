@@ -706,6 +706,16 @@ function generateCompactHTML(cvData: CVData): string {
       border-bottom: 2px solid #1a1a2e;
       margin-bottom: 20px;
     }
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #1a1a2e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+      background: #f3f4f6;
+    }
     .initial-circle {
       width: 80px;
       height: 80px;
@@ -786,9 +796,13 @@ function generateCompactHTML(cvData: CVData): string {
 <body>
   <div class="container">
     <div class="header">
-      <div class="initial-circle">
-        ${formData.name ? formData.name[0].toUpperCase() : 'T'}
-      </div>
+      ${formData.photo ? `
+        <img src="${formData.photo}" alt="Foto de perfil" class="profile-photo" />
+      ` : `
+        <div class="initial-circle">
+          ${formData.name ? formData.name[0].toUpperCase() : 'T'}
+        </div>
+      `}
       <div class="header-info">
         <h1>${formData.name || 'Tu Nombre'}</h1>
         ${formData.email ? `<div class="contact-line">${formData.email}</div>` : ''}
