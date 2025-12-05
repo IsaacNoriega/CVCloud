@@ -25,10 +25,19 @@ type Section = 'personal' | 'experience' | 'education' | 'skills' | 'languages';
 export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }: CVEditorNewProps) {
   // Solo SidebarPreview y CompactPreview permiten foto
   const templatesWithPhoto = [
-    'sidebar-dark', 
-    'compact'      
+    'sidebar-dark',
+    'compact'
   ];
   const supportsPhoto = templatesWithPhoto.includes(templateId);
+
+  // Si el usuario cambia de plantilla a una que no soporta foto, desactivar showPhoto
+  // (esto previene que quede activado si cambia de plantilla)
+  import { useEffect } from 'react';
+  useEffect(() => {
+    if (!supportsPhoto && showPhoto) {
+      setShowPhoto(false);
+    }
+  }, [supportsPhoto]);
 
   const [currentSection, setCurrentSection] = useState<Section>('personal');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -350,6 +359,11 @@ export function CVEditorNew({ cvTitle, templateId, initialData, onSave, onExit }
                                 src={formData.photo} 
                                 alt="Foto de perfil" 
                                 className="w-32 h-32 object-cover rounded-lg border"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '';
+                                  alert('La imagen no se pudo mostrar. Intenta con otra.');
+                                  setFormData({ ...formData, photo: '' });
+                                }}
                               />
                               <div className="flex gap-2">
                                 <Button 
