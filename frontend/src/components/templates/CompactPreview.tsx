@@ -1,4 +1,4 @@
-interface Experience {
+export interface Experience {
   id: string;
   position: string;
   company: string;
@@ -6,20 +6,20 @@ interface Experience {
   description: string;
 }
 
-interface Education {
+export interface Education {
   id: string;
   degree: string;
   institution: string;
   period: string;
 }
 
-interface Language {
+export interface Language {
   id: string;
   language: string;
   level: string;
 }
 
-interface CVData {
+export interface CVData {
   name: string;
   email: string;
   phone: string;
